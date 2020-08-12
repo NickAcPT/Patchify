@@ -22,11 +22,11 @@ Commands:
 
 ## Commands
 
-| Command               | Description                                                                  |
-|:---------------------:| ---------------------------------------------------------------------------- |
-| `init`                | Initializes a git repository to be able to patch source-code.                |
-| rebuild-patches       | Rebuild patch files through the commits done to the source directory.        |
-| apply-patches         | Applies the patches on the `patches` directory to the `source` directory     |
-| edit-patch            | Allows you to edit an existing patch by rolling back to the commit.          |
-| edit-patch --continue | Finishes the edit of the specific patch. Automatically rebuilds the patches. |
-| edit-patch --abort    | Cancels the edit of the specific patch.                                      |
+| Command                 | Description                                                                  |
+|:-----------------------:| ---------------------------------------------------------------------------- |
+| `init`                  | Initializes a git repository to be able to patch source-code.                |
+| `rebuild-patches`       | Rebuild patch files through the commits done to the source directory.        |
+| `apply-patches`         | Applies the patches on the `patches` directory to the `source` directory     |
+| `edit-patch`            | Allows you to edit an existing patch by rolling back to the commit.          |
+| `edit-patch --continue` | Finishes the edit of the specific patch. Automatically rebuilds the patches. |
+| `edit-patch --abort`    | Cancels the edit of the specific patch.                                      |

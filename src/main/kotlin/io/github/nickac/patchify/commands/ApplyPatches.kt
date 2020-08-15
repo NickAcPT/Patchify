@@ -17,11 +17,14 @@ class ApplyPatches : CliktCommand("Apply all patches to the project.") {
                 .command(
                     "git",
                     "am",
-                    "\"${it.absolutePath}\"",
-                    "--keep-cr"
+                    "--keep-cr",
+                    "--ignore-space-change",
+                    "--ignore-whitespace",
+                    "--whitespace=nowarn",
+                    "\"${it.absolutePath}\""
                 )
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
-                .directory(data.sourceDirectory.canonicalFile)
+                .directory(data.sourcesGit?.repository?.directory)
                 .start().waitFor() == 0
 
             if (isSuccess)

@@ -23,6 +23,15 @@ class PatchifyData {
             }
         }
 
+    val isSourcesSubmodule: Boolean
+        get() = try {
+            Git.open(sourceDirectory)?.close()
+            false
+        } catch (e: Throwable) {
+            Git.open(currentDir.findPatchifyFile().parentFile.canonicalFile)?.close()
+            true
+        }
+
     private val sourceDir: String
     private val patchesDir: String
     internal var lastEditCommit: String? = null

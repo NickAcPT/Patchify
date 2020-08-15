@@ -16,5 +16,6 @@ class Reset : CliktCommand("Resets a modified git repository to the original sou
             ?.setRef(initTagRef)
             ?.call()
 
+        echo("Reset for the sources directory applied successfully.")
     }
 }

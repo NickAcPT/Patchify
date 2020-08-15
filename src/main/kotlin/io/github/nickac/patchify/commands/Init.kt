@@ -16,10 +16,12 @@ import java.io.File
 class Init : CliktCommand("Initializes a git repository to be able to patch source-code") {
     private val sourcesDirectory by option("--sourcesDir", "--srcDir", "--sourceDir").file(canBeFile = false)
     private val gitIgnoreTypes by argument().enum<GitIgnoreType>().multiple().optional()
+    private val gitRepo by option("--gitRepo")
     private val patchesDirectory by option("--patchDir", "--patchesDir").file(canBeFile = false)
 
     override fun run() {
-        val isPatchify = currentDir.findPatchifyFile(false).exists()
+        val patchifyDataFile = currentDir.findPatchifyFile(false)
+        val isPatchify = patchifyDataFile.exists()
         val sourcesDir = sourcesDirectory ?: File(
             currentDir,
             sourceDir
@@ -32,10 +34,29 @@ class Init : CliktCommand("Initializes a git repository to be able to patch sour
         //Delete source directory if not patchify and exists
         if (!isPatchify) sourcesDir.takeIf { it.exists() }?.deleteRecursively()
 
-        val repo = if (isPatchify) Git.open(sourcesDir) else Git.init()
-            .setDirectory(sourcesDir).setBare(false).call()
+        var repo: Git? = null
 
-        if (!isPatchify) {
+        val wantsExistingGitRepo = gitRepo != null
+        if (wantsExistingGitRepo) {
+            //We can add this as a sub-module
+
+            Git.open(patchifyDataFile.parentFile)
+                .use {
+                    repo = Git(it.submoduleAdd()
+                        .setURI(gitRepo)
+                        .setPath(sourcesDir.toPath().normalize().toString())
+                        .call()
+                    )
+                }
+
+        } else {
+            //Code needs to be manually set-up by the user
+            repo = if (isPatchify) Git.open(sourcesDir) else Git.init()
+                .setDirectory(sourcesDir).setBare(false).call()
+        }
+
+
+        if (!wantsExistingGitRepo && !isPatchify) {
             gitIgnoreTypes?.let { GitIgnoreFetcher.fetch(it) }?.let {
                 File(
                     sourcesDir,
@@ -46,16 +67,20 @@ class Init : CliktCommand("Initializes a git repository to be able to patch sour
             echo("Base files created.")
             echo("Add the source-code to be patched and run the command again.")
         } else {
-            repo.add().addFilepattern(".").call()
-            repo.commit().setMessage("Initial Commit").call()
-            repo.tag().setName(initTagName).call()
+            if (repo != null) {
+                if (!wantsExistingGitRepo) {
+                    repo!!.add().addFilepattern(".").call()
+                    repo!!.commit().setMessage("Initial Commit").call()
+                }
+                repo!!.tag().setName(initTagName).call()
 
-            echo("Source code processed.")
-            echo("You can now proceed with changing the source-code.")
+                echo("Source code processed.")
+                echo("You can now proceed with changing the source-code.")
+            }
         }
 
         if (!isPatchify) {
-            currentDir.findPatchifyFile(false).createNewFile()
+            patchifyDataFile.createNewFile()
             currentDir.patchifyData =
                 PatchifyData(sourcesDir, patchesDir)
         }

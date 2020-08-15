@@ -8,6 +8,7 @@ fun main(args: Array<String>) {
         Init(),
         RebuildPatches,
         ApplyPatches(),
-        EditPatch()
+        EditPatch(),
+        Reset()
     ).main(args)
 }

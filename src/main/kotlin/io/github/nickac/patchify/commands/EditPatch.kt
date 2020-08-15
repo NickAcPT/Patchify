@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import io.github.nickac.patchify.extensions.currentDir
 import io.github.nickac.patchify.extensions.errDirNotManaged
+import io.github.nickac.patchify.extensions.initTagRef
 import io.github.nickac.patchify.extensions.patchifyData
 import org.eclipse.jgit.api.RebaseCommand
 import org.eclipse.jgit.lib.ObjectId
@@ -20,11 +21,20 @@ class EditPatch : CliktCommand("Edits a patch") {
 
     override fun run() {
         val data = checkNotNull(currentDir.patchifyData, { errDirNotManaged })
-        val git = data.sourcesGit
+        val git = data.sourcesGit ?: return
 
-        if (!continuePatch) {
+        if (abortPatch) {
+            git.rebase().setOperation(RebaseCommand.Operation.ABORT).call()
+            echo("The rebase has been aborted")
+        } else if (!continuePatch) {
+            val commitList = git.log().addRange(
+                git.repository.parseCommit(git.repository.refDatabase.peel(git.repository.refDatabase.findRef(initTagRef)).peeledObjectId)
+                    .getParent(0),
+                git.repository.resolve("HEAD")
+            ).call().toList()
+
             val toEdit =
-                git.log().call().toList().reversed()[patchId ?: 1]
+                commitList.reversed()[patchId ?: 1]
 
             currentDir.patchifyData = data.apply { lastEditCommit = toEdit.toObjectId().name }
 
@@ -42,9 +52,7 @@ class EditPatch : CliktCommand("Edits a patch") {
                     return commit
                 }
             }).setUpstream(toEdit.getParent(0)).call()
-        } else if (abortPatch) {
-            git.rebase().setOperation(RebaseCommand.Operation.ABORT).call()
-            echo("The rebase has been aborted")
+
         } else {
             git.add()
             ProcessBuilder()

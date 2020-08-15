@@ -11,10 +11,10 @@ class Reset : CliktCommand("Resets a modified git repository to the original sou
     override fun run() {
         val patchifyData = currentDir.patchifyData ?: return
 
-        patchifyData.sourcesGit.reset()
-            .setMode(ResetCommand.ResetType.HARD)
-            .setRef(initTagRef)
-            .call()
+        patchifyData.sourcesGit?.reset()
+            ?.setMode(ResetCommand.ResetType.HARD)
+            ?.setRef(initTagRef)
+            ?.call()
 
     }
 }

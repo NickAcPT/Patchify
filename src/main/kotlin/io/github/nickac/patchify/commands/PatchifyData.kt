@@ -4,11 +4,24 @@ import io.github.nickac.patchify.extensions.currentDir
 import io.github.nickac.patchify.extensions.findPatchifyFile
 import kotlinx.serialization.Serializable
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.submodule.SubmoduleWalk
 import java.io.File
 
 @Serializable
 class PatchifyData {
-    val sourcesGit: Git get() = Git.open(sourceDirectory)
+    val sourcesGit: Git?
+        get() = try {
+            Git.open(sourceDirectory)
+        } catch (e: Throwable) {
+            Git.open(currentDir.findPatchifyFile().parentFile.canonicalFile)?.use {
+                Git(
+                    SubmoduleWalk.getSubmoduleRepository(
+                        it.repository,
+                        sourceDir
+                    )
+                )
+            }
+        }
 
     private val sourceDir: String
     private val patchesDir: String

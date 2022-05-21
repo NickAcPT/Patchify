@@ -1,13 +1,15 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    kotlin("jvm") version "1.3.72"
-    kotlin("plugin.serialization") version "1.3.72"
+    kotlin("jvm") version "1.6.20"
+    kotlin("plugin.serialization") version "1.6.21"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 
     application
-    id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
 group = "io.github.nickacpt"
-version = "1.1-SNAPSHOT"
+version = "1.2.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -16,15 +18,13 @@ repositories {
 
 tasks {
     shadowJar {
-        classifier = ""
+        archiveClassifier.set(null as String?)
     }
 }
 
-distributions {
-}
 
 application {
-    mainClassName = "io.github.nickac.patchify.MainKt"
+    mainClass.set("io.github.nickac.patchify.MainKt")
 }
 
 java {
@@ -32,22 +32,28 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+tasks.withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
+
 tasks {
     shadowJar {
         manifest {
-            attributes(mapOf("Main-Class" to application.mainClassName))
+            attributes(mapOf("Main-Class" to application.mainClass.get()))
         }
     }
 }
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
 dependencies {
 
+    /* Kotlin std-lib */
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0") // JVM dependency
+    /* Kotlinx serialization */
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
 
-    implementation("com.github.ajalt:clikt:2.7.1")
-    implementation("org.eclipse.jgit", "org.eclipse.jgit", "5.8.0.202006091008-r")
-    implementation("org.slf4j", "slf4j-nop", "2.0.0-alpha1")
+    /* Command line parser */
+    implementation("com.github.ajalt:clikt:2.8.0")
 
+    /* JGit */
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.1.0.202203080745-r")
+
+    /* No-op slf4j logger */
+    implementation("org.slf4j", "slf4j-nop", "2.0.0-alpha7")
 }

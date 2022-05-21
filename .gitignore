@@ -149,3 +149,6 @@ gradle-app.setting
 **/build/
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij+all,gradle,kotlin
+
+**/run/
+**/PainAndSuffering.kt

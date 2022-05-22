@@ -7,7 +7,6 @@ import io.github.nickacpt.patchify.core.tasks.AbstractPatchifyTask
 import java.nio.file.Files
 
 class InitSourceDirectoryTask(workspace: PatchifyWorkspace) : AbstractPatchifyTask(workspace) {
-    override val name: String = "Init Source Directory"
 
     override fun run() {
         // Make sure the source directory exists

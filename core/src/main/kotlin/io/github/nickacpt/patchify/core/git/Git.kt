@@ -66,14 +66,26 @@ class Git(private val directory: Path) {
         )
     }
 
+    fun applyPatch(patchFile: Path): Int {
+        return execute(
+            "git",
+            "am",
+            "--keep-cr",
+            "--ignore-space-change",
+            "--ignore-whitespace",
+            "--whitespace=nowarn",
+            patchFile.absolutePathString(),
+            silent = true
+        )
+    }
+
     private fun execute(vararg arguments: String, silent: Boolean = false): Int {
         val cleanedArgs = arguments.map { arg -> if (arg.any(Char::isWhitespace)) "'$arg'" else arg }
 
         try {
-            println("Executing: ${cleanedArgs.joinToString(" ")}")
             return ProcessBuilder(*cleanedArgs.toTypedArray())
                 .directory(directory.toFile())
-                .also { if (!silent) it.inheritIO() }
+                .also { if (!silent) it.inheritIO() else it.redirectError(ProcessBuilder.Redirect.INHERIT) }
                 .start().waitFor()
         } catch (e: Exception) {
             throw IllegalStateException("Failed to execute git command: ${cleanedArgs.joinToString(" ")}", e)

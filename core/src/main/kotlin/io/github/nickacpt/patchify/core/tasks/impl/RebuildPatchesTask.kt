@@ -8,7 +8,6 @@ import java.nio.file.Files
 import kotlin.io.path.useDirectoryEntries
 
 class RebuildPatchesTask(workspace: PatchifyWorkspace) : AbstractPatchifyTask(workspace) {
-    override val name: String = "Rebuild Patches"
 
     override fun run() {
         // First, we either need to create the patches directory or delete the contents of it if it exists

@@ -3,24 +3,30 @@ package io.github.nickacpt.patchify.core.tasks.impl
 import io.github.nickacpt.patchify.core.git.Git
 import io.github.nickacpt.patchify.core.model.PatchifyWorkspace
 import io.github.nickacpt.patchify.core.tasks.AbstractPatchifyTask
-import kotlin.io.path.name
-import kotlin.io.path.useDirectoryEntries
+import java.nio.file.Files.createTempDirectory
+import kotlin.io.path.*
 
 class ApplyPatchesTask(workspace: PatchifyWorkspace) : AbstractPatchifyTask(workspace) {
     override fun run() {
-        val patches = workspace.patchesDirectory.useDirectoryEntries { it.toList() }
-
         with(Git(workspace.sourceDirectory)) {
-            patches.forEach { patchFile ->
+            abortMailbox()
 
-                val isSuccess = applyPatch(patchFile) == 0
+            // Create temporary directory for patches
+            val tempPatchesDir = createTempDirectory("patchify-mailbox").createDirectories()
+            val newDir = tempPatchesDir.resolve("new").createDirectory()
 
-                if (isSuccess) {
-                    println("Patch ${patchFile.name} applied successfully")
-                } else {
-                    println("Error occured while applying patch ${patchFile.name}")
-                }
+            // Copy all patches to temporary directory
+            workspace.patchesDirectory.forEachDirectoryEntry {
+                it.copyTo(newDir.resolve(it.name), overwrite = true)
             }
+
+            // Apply patches to source directory
+            if (applyPatch(tempPatchesDir) == 0) {
+                println("Patches applied successfully")
+            }
+
+            // Delete temporary directory
+            tempPatchesDir.toFile().deleteRecursively()
         }
     }
 }

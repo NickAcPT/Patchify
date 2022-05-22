@@ -30,7 +30,7 @@ class Git(private val directory: Path) {
     }
 
     fun init() {
-        execute("git", "init")
+        execute("git", "init", silent = true)
     }
 
     fun add(path: String, silent: Boolean = false) {
@@ -62,7 +62,7 @@ class Git(private val directory: Path) {
                 arrayOf("git", "tag", "-d", tag)
             } else {
                 arrayOf("git", "tag", tag)
-            }, silent = silent
+            }, silent = silent, silentErrors = true
         )
     }
 
@@ -70,22 +70,32 @@ class Git(private val directory: Path) {
         return execute(
             "git",
             "am",
+            "--3way",
             "--keep-cr",
             "--ignore-space-change",
             "--ignore-whitespace",
-            "--whitespace=nowarn",
             patchFile.absolutePathString(),
             silent = true
         )
     }
 
-    private fun execute(vararg arguments: String, silent: Boolean = false): Int {
+    fun abortMailbox(): Int {
+        return execute(
+            "git",
+            "am",
+            "--abort",
+            silent = true,
+            silentErrors = true
+        )
+    }
+
+    private fun execute(vararg arguments: String, silent: Boolean = false, silentErrors: Boolean = false): Int {
         val cleanedArgs = arguments.map { arg -> if (arg.any(Char::isWhitespace)) "'$arg'" else arg }
 
         try {
             return ProcessBuilder(*cleanedArgs.toTypedArray())
                 .directory(directory.toFile())
-                .also { if (!silent) it.inheritIO() else it.redirectError(ProcessBuilder.Redirect.INHERIT) }
+                .also { if (!silent) it.inheritIO() else if (!silentErrors) it.redirectError(ProcessBuilder.Redirect.INHERIT) }
                 .start().waitFor()
         } catch (e: Exception) {
             throw IllegalStateException("Failed to execute git command: ${cleanedArgs.joinToString(" ")}", e)

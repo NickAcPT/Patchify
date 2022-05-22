@@ -1,3 +1,3 @@
 rootProject.name = "Patchify"
 
-include("core")
+include("core", "cli")

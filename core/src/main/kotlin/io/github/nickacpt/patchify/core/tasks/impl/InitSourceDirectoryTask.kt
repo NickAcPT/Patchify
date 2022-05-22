@@ -21,6 +21,11 @@ class InitSourceDirectoryTask(workspace: PatchifyWorkspace, private val forceIni
                 return
             }
 
+            if (forceInit) {
+                // Delete the old repo if it exists
+                workspace.sourceDirectory.resolve(".git").toFile().deleteRecursively()
+            }
+
             // Initialize the git repo
             init()
 

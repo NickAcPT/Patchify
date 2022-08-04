@@ -1,3 +1,3 @@
 rootProject.name = "Patchify"
 
-include("core", "cli")
+include("core", "cli", "gradle-plugin")

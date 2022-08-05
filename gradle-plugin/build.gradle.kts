@@ -4,6 +4,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven("https://maven.quiltmc.org/repository/release/")
 }
 
 gradlePlugin {
@@ -18,4 +19,6 @@ gradlePlugin {
 
 dependencies {
     implementation(project(":core"))
+    // https://maven.quiltmc.org/repository/release/org/quiltmc/quiltflower/1.8.1/
+    implementation("org.quiltmc:quiltflower:1.8.1")
 }

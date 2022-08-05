@@ -90,7 +90,7 @@ class Git(private val directory: Path) {
     }
 
     private fun execute(vararg arguments: String, silent: Boolean = false, silentErrors: Boolean = false): Int {
-        val cleanedArgs = arguments.map { arg -> if (arg.any(Char::isWhitespace)) "'$arg'" else arg }
+        val cleanedArgs = arguments.map { arg -> if (arg.any(Char::isWhitespace)) "\"$arg\"" else arg }
 
         try {
             return ProcessBuilder(*cleanedArgs.toTypedArray())

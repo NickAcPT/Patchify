@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "io.github.nickacpt"
+    group = "io.github.nickacpt.patchify"
     version = "2.1.0-SNAPSHOT"
 }
 

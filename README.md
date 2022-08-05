@@ -41,7 +41,7 @@ patchify {
 }
 ```
 
-When using the `projectWorkspace` workspace definition, the Patchify Gradle plugin willautomatically find the best paths
+When using the `projectWorkspace` workspace definition, the Patchify Gradle plugin will automatically find the best paths
 to use.
 
 If you want Patchify to handle decompilation and patching for you, use the `decompileJar` initializer. This is the step

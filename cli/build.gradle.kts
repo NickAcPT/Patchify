@@ -17,3 +17,15 @@ dependencies {
     /* Jackson - Json Parser */
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
 }
+
+application {
+    mainClass.set("io.github.nickacpt.patchify.cli.EntrypointKt")
+}
+
+tasks {
+    shadowJar {
+        manifest {
+            attributes(mapOf("Main-Class" to application.mainClassName))
+        }
+    }
+}

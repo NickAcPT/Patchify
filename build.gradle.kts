@@ -7,7 +7,7 @@ allprojects {
     version = "2.1.0-SNAPSHOT"
 }
 
-arrayOf("core", "gradle-plugin").forEach { name ->
+arrayOf("core", "cli", "gradle-plugin").forEach { name ->
     project(name) {
         apply(plugin = "org.jetbrains.kotlin.jvm")
         apply(plugin = "java-library")

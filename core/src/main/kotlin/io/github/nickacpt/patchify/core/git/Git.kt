@@ -93,10 +93,14 @@ class Git(private val directory: Path) {
         val cleanedArgs = arguments.map { arg -> if (arg.any(Char::isWhitespace)) "\"$arg\"" else arg }
 
         try {
-            return ProcessBuilder(*cleanedArgs.toTypedArray())
+            val process = ProcessBuilder(*cleanedArgs.toTypedArray())
                 .directory(directory.toFile())
                 .also { if (!silent) it.inheritIO() else if (!silentErrors) it.redirectError(ProcessBuilder.Redirect.INHERIT) }
-                .start().waitFor()
+                .start()
+
+            if (silent) process.inputStream.bufferedReader().forEachLine { }
+
+            return process.waitFor()
         } catch (e: Exception) {
             throw IllegalStateException("Failed to execute git command: ${cleanedArgs.joinToString(" ")}", e)
         }
